@@ -1,0 +1,2493 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Garden</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100%;
+      padding-bottom: 100px;
+    }
+
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+      padding: 24px 20px;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .site-title {
+      font-family: 'Brush Script MT', cursive;
+      font-size: 42px;
+      text-align: center;
+      background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      transition: all 0.3s;
+    }
+
+    .dot.active {
+      background: white;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* Gallery Grid */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .plant-card {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      background: white;
+    }
+
+    .plant-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .plant-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .plant-card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      padding: 12px;
+      color: white;
+    }
+
+    .plant-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .plant-age {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+
+    .empty-message {
+      font-size: 20px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 24px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+      padding: 12px 24px;
+      border-radius: 32px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      display: flex;
+      gap: 32px;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      color: white;
+    }
+
+    .nav-item:hover {
+      transform: scale(1.1);
+    }
+
+    .nav-item.active {
+      transform: scale(1.15);
+    }
+
+    .nav-icon {
+      font-size: 24px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #666;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #8B5CF6;
+    }
+
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .photo-upload {
+      border: 2px dashed #e5e7eb;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .photo-upload:hover {
+      border-color: #8B5CF6;
+      background: #f9fafb;
+    }
+
+    .photo-upload input {
+      display: none;
+    }
+
+    .photo-preview {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    /* Plant Detail Page */
+    .plant-detail-header {
+      position: relative;
+      height: 300px;
+      border-radius: 24px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .plant-detail-header img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .plant-detail-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      padding: 24px;
+      color: white;
+    }
+
+    .plant-detail-name {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .plant-detail-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #8B5CF6 0%, #FCD34D 100%);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+      background: white;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -33px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #8B5CF6;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px #8B5CF6;
+    }
+
+    .timeline-date {
+      font-size: 12px;
+      color: #8B5CF6;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .timeline-type {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .timeline-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .timeline-photo {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+
+    /* AI Diagnosis Page */
+    .diagnosis-wizard {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .wizard-step {
+      display: none;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    .step-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option-card {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .option-card:hover {
+      border-color: #8B5CF6;
+      background: #f5f3ff;
+      transform: translateY(-2px);
+    }
+
+    .option-card.selected {
+      border-color: #8B5CF6;
+      background: linear-gradient(135deg, #8B5CF6 0%, #FCD34D 100%);
+      color: white;
+    }
+
+    .option-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .option-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .diagnosis-result {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .severity-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .severity-low { background: #D1FAE5; color: #065F46; }
+    .severity-medium { background: #FEF3C7; color: #92400E; }
+    .severity-high { background: #FEE2E2; color: #991B1B; }
+
+    .treatment-section {
+      margin-top: 24px;
+    }
+
+    .treatment-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .treatment-card {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .treatment-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #8B5CF6;
+      margin-bottom: 8px;
+    }
+
+    .treatment-steps {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .treatment-price {
+      font-size: 12px;
+      color: #059669;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    /* Page Container */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8B5CF6 0%, #FCD34D 100%);
+      color: white;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+      transition: transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+    }
+
+    .back-btn {
+      background: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      background: white;
+      color: #8B5CF6;
+      border: 2px solid #8B5CF6;
+      padding: 12px 24px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #8B5CF6;
+      color: white;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+      transition: width 0.3s;
+    }
+
+    /* SVG Icons */
+    .icon-outline {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .symptom-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .symptom-item {
+      background: #f9fafb;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .symptom-item:hover {
+      border-color: #8B5CF6;
+      background: #f5f3ff;
+    }
+
+    .symptom-item.selected {
+      border-color: #8B5CF6;
+      background: #f5f3ff;
+    }
+
+    .symptom-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #8B5CF6;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .symptom-item.selected .symptom-checkbox {
+      background: #8B5CF6;
+      color: white;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Home Page -->
+  <div id="homePage" class="page active">
+   <div class="header">
+    <h1 class="site-title" id="siteTitle">My Garden</h1>
+    <div class="carousel-dots">
+     <div class="dot active"></div>
+     <div class="dot"></div>
+     <div class="dot"></div>
+    </div>
+   </div>
+   <div class="container">
+    <div id="galleryContainer"></div>
+   </div><button class="fab" onclick="showAddPlantModal()">
+    <svg class="icon-outline" viewbox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg></button>
+  </div><!-- Plant Detail Page -->
+  <div id="plantDetailPage" class="page">
+   <div class="container"><button class="back-btn" onclick="showPage('homePage')">
+     <svg class="icon-outline" viewbox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line> <polyline points="12 19 5 12 12 5"></polyline>
+     </svg></button>
+    <div id="plantDetailContent"></div>
+   </div><button class="fab" onclick="showAddEventModal()">
+    <svg class="icon-outline" viewbox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg></button>
+  </div><!-- AI Diagnosis Page -->
+  <div id="diagnosisPage" class="page">
+   <div class="container"><button class="back-btn" onclick="showPage('homePage')">
+     <svg class="icon-outline" viewbox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line> <polyline points="12 19 5 12 12 5"></polyline>
+     </svg></button>
+    <h2 class="section-title">
+     <svg class="icon-outline" viewbox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path> <polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline> <polyline points="7.5 19.79 7.5 14.6 3 12"></polyline> <polyline points="21 12 16.5 14.6 16.5 19.79"></polyline> <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline> <line x1="12" y1="22.08" x2="12" y2="12"></line>
+     </svg> Diagnóstico Inteligente</h2>
+    <div class="diagnosis-wizard">
+     <div class="wizard-step active" id="step1">
+      <div class="step-title">
+       Descreva o problema da sua planta
+      </div>
+      <p style="text-align: center; color: #666; margin-bottom: 24px; font-size: 14px;">Conte o que está acontecendo: tipo de planta, sintomas, cores, etc.</p>
+      <div class="form-group"><label class="form-label">Descreva o problema</label> <textarea class="form-input" id="problemDescription" placeholder="Ex: Minha rosa está com folhas amarelas começando de baixo, algumas estão caindo e o solo está sempre úmido. Inclua o tipo de planta na descrição se souber." style="min-height: 150px;" required></textarea>
+      </div>
+      <div class="form-group"><label class="form-label">Foto do Problema (opcional)</label>
+       <div class="photo-upload" onclick="document.getElementById('problemPhoto').click()">
+        <svg class="icon-outline" viewbox="0 0 24 24" style="width: 48px; height: 48px; margin: 0 auto 12px; color: #8B5CF6;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect> <circle cx="8.5" cy="8.5" r="1.5"></circle> <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <p style="color: #666;">Clique para adicionar foto</p><input type="file" id="problemPhoto" accept="image/*" onchange="previewPhoto(this, 'problemPhotoPreview')">
+       </div><img id="problemPhotoPreview" class="photo-preview" style="display: none;">
+      </div><button class="btn-primary" style="width: 100%;" onclick="analyzeFreeTextDiagnosis()">
+       <svg class="icon-outline" viewbox="0 0 24 24" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 8px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path> <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline> <line x1="12" y1="22.08" x2="12" y2="12"></line>
+       </svg> Analisar com IA </button>
+     </div>
+    </div>
+    <div id="diagnosisResult"></div>
+   </div>
+  </div><!-- Add Plant Modal -->
+  <div id="addPlantModal" class="modal">
+   <div class="modal-content">
+    <div class="modal-header">
+     <h2 class="modal-title">Adicionar Planta</h2><button class="close-btn" onclick="closeModal('addPlantModal')">×</button>
+    </div>
+    <form id="addPlantForm" onsubmit="addPlant(event)">
+     <div class="form-group"><label class="form-label">Foto da Planta</label>
+      <div class="photo-upload" onclick="document.getElementById('plantPhoto').click()">
+       <svg class="icon-outline" viewbox="0 0 24 24" style="width: 48px; height: 48px; margin: 0 auto 12px; color: #8B5CF6;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect> <circle cx="8.5" cy="8.5" r="1.5"></circle> <polyline points="21 15 16 10 5 21"></polyline>
+       </svg>
+       <p style="color: #666;">Clique para adicionar foto</p><input type="file" id="plantPhoto" accept="image/*" onchange="previewPhoto(this, 'plantPhotoPreview')">
+      </div><img id="plantPhotoPreview" class="photo-preview" style="display: none;">
+     </div>
+     <div class="form-group"><label class="form-label">Nome da Planta</label> <input type="text" class="form-input" id="plantName" placeholder="Ex: Rosa Vermelha" required>
+     </div>
+     <div class="form-group"><label class="form-label">Data de Plantio</label> <input type="date" class="form-input" id="plantDate" required>
+     </div>
+     <div class="form-group"><label class="form-label">Observações (opcional)</label> <textarea class="form-input" id="plantNotes" placeholder="Notas sobre a planta..."></textarea>
+     </div><button type="submit" class="btn-primary" style="width: 100%;">Adicionar Planta</button>
+    </form>
+   </div>
+  </div><!-- Add Event Modal -->
+  <div id="addEventModal" class="modal">
+   <div class="modal-content">
+    <div class="modal-header">
+     <h2 class="modal-title">Adicionar Evento</h2><button class="close-btn" onclick="closeModal('addEventModal')">×</button>
+    </div>
+    <form id="addEventForm" onsubmit="addEvent(event)">
+     <div class="form-group"><label class="form-label">Tipo de Evento</label> <select class="form-input" id="eventType" required> <option value="">Selecione...</option> <option value="poda">🌿 Poda</option> <option value="vaso">🪴 Troca de Vaso</option> <option value="adubo">🌱 Adubação</option> <option value="rega">💧 Rega Especial</option> <option value="problema">⚠️ Problema Detectado</option> <option value="foto">📸 Foto de Desenvolvimento</option> <option value="nota">📝 Nota Geral</option> </select>
+     </div>
+     <div class="form-group"><label class="form-label">Data</label> <input type="date" class="form-input" id="eventDate" required>
+     </div>
+     <div class="form-group"><label class="form-label">Foto (opcional)</label>
+      <div class="photo-upload" onclick="document.getElementById('eventPhoto').click()">
+       <svg class="icon-outline" viewbox="0 0 24 24" style="width: 48px; height: 48px; margin: 0 auto 12px; color: #8B5CF6;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect> <circle cx="8.5" cy="8.5" r="1.5"></circle> <polyline points="21 15 16 10 5 21"></polyline>
+       </svg>
+       <p style="color: #666;">Clique para adicionar foto</p><input type="file" id="eventPhoto" accept="image/*" onchange="previewPhoto(this, 'eventPhotoPreview')">
+      </div><img id="eventPhotoPreview" class="photo-preview" style="display: none;">
+     </div>
+     <div class="form-group"><label class="form-label">Descrição</label> <textarea class="form-input" id="eventDescription" placeholder="Descreva o evento..." required></textarea>
+     </div><button type="submit" class="btn-primary" style="width: 100%;">Adicionar Evento</button>
+    </form>
+   </div>
+  </div><!-- Bottom Navigation -->
+  <div class="bottom-nav">
+   <div class="nav-item active" onclick="showPage('homePage')">
+    <svg class="icon-outline nav-icon" viewbox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path> <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg><span class="nav-label">Home</span>
+   </div>
+   <div class="nav-item" onclick="showPage('homePage')">
+    <svg class="icon-outline nav-icon" viewbox="0 0 24 24"><path d="M12 2v20M2 12h20"></path> <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg><span class="nav-label">Plantas</span>
+   </div>
+   <div class="nav-item" onclick="showPage('diagnosisPage')">
+    <svg class="icon-outline nav-icon" viewbox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle> <path d="m21 21-4.35-4.35"></path>
+    </svg><span class="nav-label">IA</span>
+   </div>
+  </div>
+  <script>
+    // Initialize
+    let plants = JSON.parse(localStorage.getItem('myGardenPlants')) || [];
+    let currentPlantId = null;
+    let diagnosisData = {
+      plantType: '',
+      affectedPart: '',
+      symptoms: []
+    };
+
+    const defaultConfig = {
+      site_title: "My Garden",
+      empty_message: "Adicione sua primeira planta!",
+      add_button_text: "Adicionar Planta"
+    };
+
+    let config = { ...defaultConfig };
+
+    // Knowledge Base - Comprehensive Plant Problem Database
+    const knowledgeBase = {
+      rosa: {
+        folhas: {
+          amarelas_base: {
+            name: 'Excesso de Água',
+            severity: 'medium',
+            cause: 'Rega excessiva causando apodrecimento das raízes',
+            symptoms: ['Folhas amarelas começando de baixo', 'Folhas caindo facilmente', 'Solo sempre úmido'],
+            treatments: {
+              free: [
+                {
+                  name: 'Reduzir Rega Imediatamente',
+                  recipe: 'Sem ingredientes necessários',
+                  steps: 'Pare de regar por 5-7 dias. Deixe o solo secar completamente entre regas. Verifique se o vaso tem furos de drenagem.',
+                  frequency: 'Regar apenas quando o solo estiver seco ao toque'
+                },
+                {
+                  name: 'Melhorar Drenagem',
+                  recipe: 'Terra + areia grossa (proporção 2:1)',
+                  steps: 'Se possível, replante em substrato mais drenante. Adicione areia grossa ou perlita à terra.',
+                  frequency: 'Uma vez'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Enraizador Natural',
+                  price: 'R$ 8-15',
+                  usage: 'Aplique conforme instruções para estimular novas raízes saudáveis.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          manchas_pretas: {
+            name: 'Mancha Preta (Fungo)',
+            severity: 'high',
+            cause: 'Fungo Diplocarpon rosae, comum em ambientes úmidos',
+            symptoms: ['Manchas pretas circulares nas folhas', 'Folhas amarelando ao redor das manchas', 'Queda prematura de folhas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Remoção Manual',
+                  recipe: 'Tesoura limpa + álcool 70%',
+                  steps: 'Remova TODAS as folhas infectadas. Limpe a tesoura com álcool entre cada corte. Descarte as folhas no lixo (não no composto).',
+                  frequency: 'Imediatamente e diariamente por 2 semanas'
+                },
+                {
+                  name: 'Chá de Canela',
+                  recipe: '2 colheres de canela em pó + 1 litro de água fervente',
+                  steps: 'Ferva a água, adicione canela, deixe esfriar. Coe e borrife nas folhas saudáveis pela manhã.',
+                  frequency: 'A cada 3 dias por 3 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Fungicida à Base de Cobre',
+                  price: 'R$ 15-25',
+                  usage: 'Aplique conforme instruções, geralmente a cada 7-10 dias.',
+                  where: 'Lojas agropecuárias ou jardinagem'
+                }
+              ]
+            }
+          },
+          pulgoes: {
+            name: 'Infestação de Pulgões',
+            severity: 'medium',
+            cause: 'Insetos sugadores de seiva, atraídos por brotos novos',
+            symptoms: ['Pequenos insetos verdes/pretos nos brotos', 'Folhas enroladas', 'Substância pegajosa nas folhas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Jato de Água Forte',
+                  recipe: 'Água limpa',
+                  steps: 'Use mangueira com jato forte ou chuveirinho. Mire nos pulgões, especialmente na parte de baixo das folhas. Faça pela manhã.',
+                  frequency: 'Diariamente por 1 semana'
+                },
+                {
+                  name: 'Água com Sabão Neutro',
+                  recipe: '1 litro de água + 1 colher de sopa de sabão neutro',
+                  steps: 'Misture bem. Borrife generosamente em todas as folhas, especialmente embaixo. Deixe agir 30 minutos e enxágue.',
+                  frequency: 'A cada 3 dias por 2 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Dilua 5ml em 1 litro de água. Borrife à noite. Repita semanalmente.',
+                  where: 'Lojas de jardinagem ou online'
+                }
+              ]
+            }
+          },
+          cochonilhas: {
+            name: 'Cochonilhas',
+            severity: 'high',
+            cause: 'Insetos que sugam seiva e secretam substância pegajosa',
+            symptoms: ['Pequenos insetos brancos/marrons grudados', 'Substância pegajosa nas folhas', 'Folhas amareladas', 'Fumagina (fungo preto)'],
+            treatments: {
+              free: [
+                {
+                  name: 'Remoção Manual com Álcool',
+                  recipe: 'Álcool 70% + cotonete',
+                  steps: 'Molhe o cotonete no álcool e passe em CADA cochonilha para matá-las. Faça isso com cuidado em todas as folhas e caule.',
+                  frequency: 'Diariamente por 2 semanas'
+                },
+                {
+                  name: 'Calda de Fumo',
+                  recipe: '1 cigarro de fumo de corda + 1 litro de água + 1 colher de sabão',
+                  steps: 'Deixe o fumo de molho na água por 24h. Coe, adicione sabão e borrife. CUIDADO: use luvas, é tóxico!',
+                  frequency: 'A cada 5 dias por 3 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Inseticida Sistêmico',
+                  price: 'R$ 20-35',
+                  usage: 'Aplicar conforme instruções. Mata cochonilhas de dentro da planta.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          acaros: {
+            name: 'Ácaros (Ácaro Rajado)',
+            severity: 'high',
+            cause: 'Ácaros microscópicos que sugam seiva, proliferam em tempo seco',
+            symptoms: ['Pontos amarelos/brancos nas folhas', 'Teias finas entre folhas', 'Folhas secas e quebradiças', 'Folhas prateadas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Aumentar Umidade',
+                  recipe: 'Água + borrifador',
+                  steps: 'Ácaros ODEIAM umidade. Borrife água nas folhas 2-3x ao dia. Coloque um prato com água perto da planta.',
+                  frequency: '2-3x ao dia por 2 semanas'
+                },
+                {
+                  name: 'Chá de Alho',
+                  recipe: '5 dentes de alho + 1 litro de água',
+                  steps: 'Bata o alho com água no liquidificador. Deixe descansar 24h, coe e borrife nas folhas (especialmente embaixo).',
+                  frequency: 'A cada 3 dias por 3 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Acaricida Específico',
+                  price: 'R$ 25-40',
+                  usage: 'Inseticidas comuns NÃO matam ácaros. Use acaricida específico.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          lagartas: {
+            name: 'Lagartas',
+            severity: 'medium',
+            cause: 'Larvas de borboletas/mariposas que comem folhas',
+            symptoms: ['Buracos grandes nas folhas', 'Folhas comidas nas bordas', 'Presença de lagartas verdes/marrons', 'Fezes escuras nas folhas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Catação Manual',
+                  recipe: 'Luvas',
+                  steps: 'Procure lagartas de manhã cedo ou à noite. Remova manualmente e descarte longe. Verifique embaixo das folhas.',
+                  frequency: 'Diariamente por 2 semanas'
+                },
+                {
+                  name: 'Bacillus thuringiensis Caseiro',
+                  recipe: 'Folhas de tomate ou batata',
+                  steps: 'Ferva 1 xícara de folhas de tomate em 2 xícaras de água. Deixe esfriar, coe e borrife. É tóxico para lagartas.',
+                  frequency: 'A cada 5 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Bacillus thuringiensis (Bt)',
+                  price: 'R$ 15-25',
+                  usage: 'Inseticida biológico específico para lagartas. Seguro para humanos e abelhas.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          tripes: {
+            name: 'Tripes',
+            severity: 'medium',
+            cause: 'Insetos minúsculos que raspam e sugam células das folhas',
+            symptoms: ['Manchas prateadas nas folhas', 'Folhas deformadas', 'Pequenos insetos pretos/amarelos', 'Pontos pretos (fezes)'],
+            treatments: {
+              free: [
+                {
+                  name: 'Armadilha Adesiva Azul',
+                  recipe: 'Papel azul + óleo ou mel',
+                  steps: 'Tripes são atraídos pela cor azul. Passe óleo/mel em papel azul e coloque perto da planta. Eles grudam.',
+                  frequency: 'Trocar a cada 3 dias'
+                },
+                {
+                  name: 'Sabão de Potássio',
+                  recipe: '2 colheres de sabão neutro + 1 litro de água',
+                  steps: 'Misture e borrife abundantemente, especialmente embaixo das folhas. Enxágue após 1 hora.',
+                  frequency: 'A cada 3 dias por 2 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Muito eficaz contra tripes. Dilua e borrife à noite.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          brancas_po: {
+            name: 'Oídio (Mofo Branco)',
+            severity: 'medium',
+            cause: 'Fungo que se desenvolve em ambientes úmidos com pouca circulação',
+            symptoms: ['Pó branco nas folhas', 'Folhas deformadas', 'Crescimento lento'],
+            treatments: {
+              free: [
+                {
+                  name: 'Bicarbonato de Sódio',
+                  recipe: '1 colher de chá de bicarbonato + 1 litro de água + 1 colher de chá de óleo vegetal',
+                  steps: 'Misture bem todos os ingredientes. Borrife nas folhas afetadas. Aplique em dias nublados ou à tarde.',
+                  frequency: 'A cada 5 dias por 3 semanas'
+                },
+                {
+                  name: 'Leite Diluído',
+                  recipe: '1 parte de leite + 9 partes de água',
+                  steps: 'Misture e borrife nas folhas. O leite cria um ambiente hostil para o fungo.',
+                  frequency: 'A cada 3 dias por 2 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Enxofre Fungicida',
+                  price: 'R$ 12-20',
+                  usage: 'Aplique conforme instruções. Muito eficaz contra oídio.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          moscas_brancas: {
+            name: 'Mosca Branca',
+            severity: 'high',
+            cause: 'Pequenas moscas que sugam seiva e transmitem vírus',
+            symptoms: ['Nuvem de mosquinhas brancas ao tocar', 'Folhas amareladas', 'Substância pegajosa', 'Crescimento atrofiado'],
+            treatments: {
+              free: [
+                {
+                  name: 'Armadilha Adesiva Amarela',
+                  recipe: 'Papel amarelo + óleo ou mel',
+                  steps: 'Moscas brancas são atraídas por amarelo. Passe óleo/mel em papel amarelo e pendure perto da planta.',
+                  frequency: 'Trocar a cada 2-3 dias'
+                },
+                {
+                  name: 'Aspirador de Pó',
+                  recipe: 'Aspirador portátil',
+                  steps: 'De manhã cedo (quando estão lentas), aspire suavemente as moscas das folhas. Descarte o saco imediatamente.',
+                  frequency: 'Diariamente por 1 semana'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem + Sabão',
+                  price: 'R$ 18-30',
+                  usage: 'Mata adultos e larvas. Aplicar a cada 5 dias por 3 semanas.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          }
+        },
+        flores: {
+          nao_abre: {
+            name: 'Botões Não Abrem',
+            severity: 'low',
+            cause: 'Falta de nutrientes, especialmente fósforo, ou estresse hídrico',
+            symptoms: ['Botões formam mas não abrem', 'Botões secam antes de abrir', 'Crescimento lento'],
+            treatments: {
+              free: [
+                {
+                  name: 'Casca de Banana (Fósforo)',
+                  recipe: 'Cascas de 2-3 bananas',
+                  steps: 'Corte as cascas em pedaços pequenos e enterre ao redor da planta (5cm de profundidade). Ou faça chá: ferva as cascas em 1L de água, deixe esfriar e regue.',
+                  frequency: 'A cada 15 dias'
+                },
+                {
+                  name: 'Ajuste de Rega',
+                  recipe: 'Água',
+                  steps: 'Rosas precisam de rega consistente. Regue profundamente 2-3x por semana, mantendo solo úmido mas não encharcado.',
+                  frequency: '2-3x por semana'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Adubo NPK 4-14-8',
+                  price: 'R$ 10-18',
+                  usage: 'Rico em fósforo (número do meio). Aplique conforme instruções da embalagem.',
+                  where: 'Qualquer loja de jardinagem'
+                }
+              ]
+            }
+          }
+        }
+      },
+      rosa_deserto: {
+        folhas: {
+          amarelas: {
+            name: 'Excesso de Água',
+            severity: 'high',
+            cause: 'Rosa do deserto é suculenta e apodrece facilmente com excesso de água',
+            symptoms: ['Folhas amarelas', 'Caule mole', 'Folhas caindo'],
+            treatments: {
+              free: [
+                {
+                  name: 'PARE DE REGAR IMEDIATAMENTE',
+                  recipe: 'Sem ingredientes',
+                  steps: 'Pare completamente de regar. Remova a planta do vaso e verifique as raízes. Se estiverem marrons/moles, corte as partes podres com tesoura limpa. Deixe secar ao ar por 2-3 dias antes de replantar.',
+                  frequency: 'Ação única'
+                },
+                {
+                  name: 'Substrato Drenante',
+                  recipe: '50% terra + 30% areia grossa + 20% pedriscos',
+                  steps: 'Replante em substrato MUITO drenante. Rosa do deserto precisa de solo que seque rápido.',
+                  frequency: 'Uma vez'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Substrato para Cactos',
+                  price: 'R$ 8-15',
+                  usage: 'Use substrato pronto para cactos e suculentas. Já vem com drenagem ideal.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          caindo: {
+            name: 'Falta de Luz Solar',
+            severity: 'medium',
+            cause: 'Rosa do deserto precisa de SOL PLENO (6-8h diretas por dia)',
+            symptoms: ['Folhas caindo sem amarelas', 'Crescimento fraco', 'Caule fino'],
+            treatments: {
+              free: [
+                {
+                  name: 'Mudança de Local',
+                  recipe: 'Sem ingredientes',
+                  steps: 'Mova para local com SOL DIRETO mínimo 6 horas por dia. Rosa do deserto AMA sol forte. Faça a mudança gradual (1h a mais por dia) para não queimar.',
+                  frequency: 'Permanente'
+                }
+              ],
+              cheap: []
+            }
+          },
+          cochonilhas_rosa_deserto: {
+            name: 'Cochonilhas em Rosa do Deserto',
+            severity: 'high',
+            cause: 'Insetos que se escondem no caudex e folhas',
+            symptoms: ['Insetos brancos tipo algodão', 'Substância pegajosa', 'Folhas amareladas', 'Fumagina preta'],
+            treatments: {
+              free: [
+                {
+                  name: 'Álcool 70% Direto',
+                  recipe: 'Álcool 70% + cotonete',
+                  steps: 'Molhe cotonete e toque CADA cochonilha. Verifique todas as dobras do caudex. Álcool mata instantaneamente.',
+                  frequency: 'Diariamente por 2 semanas'
+                },
+                {
+                  name: 'Óleo Mineral + Detergente',
+                  recipe: '2 colheres de óleo mineral + 1 colher de detergente + 1L água',
+                  steps: 'Misture e borrife. O óleo sufoca cochonilhas. CUIDADO: não aplique sob sol forte.',
+                  frequency: 'A cada 5 dias por 3 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Inseticida Sistêmico',
+                  price: 'R$ 20-35',
+                  usage: 'Aplicar no solo. Rosa absorve e mata cochonilhas de dentro.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          pulgoes_rosa_deserto: {
+            name: 'Pulgões em Rosa do Deserto',
+            severity: 'medium',
+            cause: 'Pulgões atacam flores e brotos novos',
+            symptoms: ['Insetos verdes/pretos nas flores', 'Flores deformadas', 'Botões não abrem', 'Formigas na planta'],
+            treatments: {
+              free: [
+                {
+                  name: 'Jato de Água Suave',
+                  recipe: 'Água',
+                  steps: 'Use jato SUAVE (rosa do deserto é delicada). Remova pulgões das flores. Faça pela manhã.',
+                  frequency: 'A cada 2 dias por 1 semana'
+                },
+                {
+                  name: 'Sabão Neutro Diluído',
+                  recipe: '1 colher de chá de sabão + 1L água',
+                  steps: 'Borrife levemente. Enxágue após 20 minutos. Não encharque!',
+                  frequency: 'A cada 3 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Dilua bem. Aplique à noite. Muito eficaz para rosa do deserto.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          acaros_rosa_deserto: {
+            name: 'Ácaros em Rosa do Deserto',
+            severity: 'medium',
+            cause: 'Ácaros proliferam em clima seco e quente',
+            symptoms: ['Folhas com pontos amarelos', 'Folhas secas', 'Teias finas', 'Crescimento atrofiado'],
+            treatments: {
+              free: [
+                {
+                  name: 'Aumentar Umidade do Ar',
+                  recipe: 'Água + borrifador',
+                  steps: 'Borrife LEVEMENTE ao redor (não nas folhas). Coloque prato com água perto. Ácaros odeiam umidade.',
+                  frequency: 'Diariamente'
+                },
+                {
+                  name: 'Limpeza com Água',
+                  recipe: 'Água + pano macio',
+                  steps: 'Limpe cada folha delicadamente. Remove ácaros e ovos.',
+                  frequency: 'A cada 3 dias por 2 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Acaricida Específico',
+                  price: 'R$ 25-40',
+                  usage: 'Use dose reduzida. Aplique à noite.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          tripes_rosa_deserto: {
+            name: 'Tripes em Rosa do Deserto',
+            severity: 'medium',
+            cause: 'Insetos que danificam flores e botões',
+            symptoms: ['Flores deformadas', 'Manchas prateadas nas pétalas', 'Botões não abrem', 'Pontos pretos (fezes)'],
+            treatments: {
+              free: [
+                {
+                  name: 'Armadilha Adesiva Azul',
+                  recipe: 'Papel azul + óleo/mel',
+                  steps: 'Coloque perto das flores. Tripes são atraídos por azul e grudam.',
+                  frequency: 'Trocar a cada 3 dias'
+                },
+                {
+                  name: 'Sabão Neutro',
+                  recipe: '1 colher de chá de sabão + 1L água',
+                  steps: 'Borrife nas flores. Enxágue após 30 minutos.',
+                  frequency: 'A cada 3 dias durante floração'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Muito eficaz contra tripes. Aplicar à noite.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          }
+        },
+        caule: {
+          mole: {
+            name: 'Podridão do Caudex',
+            severity: 'high',
+            cause: 'Excesso de água causando apodrecimento do caule',
+            symptoms: ['Caule mole ao toque', 'Manchas escuras no caudex', 'Mau cheiro'],
+            treatments: {
+              free: [
+                {
+                  name: 'Cirurgia de Emergência',
+                  recipe: 'Faca afiada + álcool 70% + canela em pó',
+                  steps: 'URGENTE: Corte TODA a parte podre até encontrar tecido saudável (branco/verde). Esterilize a faca com álcool entre cortes. Polvilhe canela na ferida. Deixe secar ao ar por 3-5 dias antes de replantar.',
+                  frequency: 'Ação única de emergência'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Fungicida Sistêmico',
+                  price: 'R$ 15-25',
+                  usage: 'Após a cirurgia, aplique fungicida para prevenir nova infecção.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          }
+        }
+      },
+      suculenta: {
+        folhas: {
+          murchas: {
+            name: 'Falta de Água',
+            severity: 'low',
+            cause: 'Suculentas armazenam água, mas ainda precisam de regas ocasionais',
+            symptoms: ['Folhas enrugadas', 'Folhas moles', 'Perda de cor'],
+            treatments: {
+              free: [
+                {
+                  name: 'Rega Profunda',
+                  recipe: 'Água',
+                  steps: 'Regue abundantemente até a água sair pelos furos. Depois, NÃO regue novamente até o solo secar COMPLETAMENTE (teste com o dedo).',
+                  frequency: 'A cada 7-14 dias (depende do clima)'
+                }
+              ],
+              cheap: []
+            }
+          },
+          transparentes: {
+            name: 'Excesso de Água',
+            severity: 'high',
+            cause: 'Células das folhas estourando por excesso de água',
+            symptoms: ['Folhas transparentes/translúcidas', 'Folhas moles e aguadas', 'Caindo facilmente'],
+            treatments: {
+              free: [
+                {
+                  name: 'Parar Rega e Drenar',
+                  recipe: 'Sem ingredientes',
+                  steps: 'Pare de regar imediatamente. Remova do vaso e deixe as raízes secarem ao ar por 2-3 dias. Replante em substrato seco e drenante.',
+                  frequency: 'Ação única'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Substrato para Suculentas',
+                  price: 'R$ 8-15',
+                  usage: 'Use substrato específico para suculentas com excelente drenagem.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          alongadas: {
+            name: 'Estiolamento (Falta de Luz)',
+            severity: 'medium',
+            cause: 'Planta esticando em busca de luz',
+            symptoms: ['Caule alongado e fino', 'Folhas espaçadas', 'Crescimento para um lado'],
+            treatments: {
+              free: [
+                {
+                  name: 'Mais Luz Solar',
+                  recipe: 'Sem ingredientes',
+                  steps: 'Mova para local com mais luz (4-6h de sol direto). Gire o vaso semanalmente para crescimento uniforme. Partes estioladas não voltam ao normal, mas novo crescimento será saudável.',
+                  frequency: 'Permanente'
+                }
+              ],
+              cheap: []
+            }
+          },
+          cochonilhas_suculenta: {
+            name: 'Cochonilhas em Suculentas',
+            severity: 'high',
+            cause: 'Insetos que se escondem entre folhas carnudas',
+            symptoms: ['Insetos brancos tipo algodão', 'Substância pegajosa', 'Folhas deformadas', 'Crescimento atrofiado'],
+            treatments: {
+              free: [
+                {
+                  name: 'Álcool Isopropílico 70%',
+                  recipe: 'Álcool 70% + cotonete ou pincel',
+                  steps: 'Molhe cotonete no álcool e toque DIRETAMENTE em cada cochonilha. Verifique entre as folhas e na base. Repita diariamente.',
+                  frequency: 'Diariamente por 2 semanas'
+                },
+                {
+                  name: 'Jato de Água Forte',
+                  recipe: 'Água',
+                  steps: 'Use jato forte para remover cochonilhas. Deixe a planta secar completamente antes de regar novamente.',
+                  frequency: 'A cada 3 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Inseticida Sistêmico',
+                  price: 'R$ 20-35',
+                  usage: 'Específico para suculentas. Mata de dentro para fora.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          pulgoes_suculenta: {
+            name: 'Pulgões em Suculentas',
+            severity: 'medium',
+            cause: 'Pulgões atacam brotos novos e flores',
+            symptoms: ['Insetos verdes/pretos nos brotos', 'Flores deformadas', 'Substância pegajosa', 'Formigas na planta'],
+            treatments: {
+              free: [
+                {
+                  name: 'Jato de Água',
+                  recipe: 'Água',
+                  steps: 'Jato forte de água remove pulgões. CUIDADO: não encharque a suculenta. Deixe secar bem.',
+                  frequency: 'A cada 2 dias por 1 semana'
+                },
+                {
+                  name: 'Sabão Neutro Diluído',
+                  recipe: '1 colher de chá de sabão + 1 litro de água',
+                  steps: 'Borrife levemente. Enxágue após 30 minutos. Deixe secar completamente.',
+                  frequency: 'A cada 3 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Dilua bem (menos concentrado para suculentas). Aplique à noite.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          acaros_suculenta: {
+            name: 'Ácaros em Suculentas',
+            severity: 'medium',
+            cause: 'Ácaros proliferam em ambientes secos',
+            symptoms: ['Manchas marrons nas folhas', 'Teias finas', 'Folhas secas', 'Crescimento deformado'],
+            treatments: {
+              free: [
+                {
+                  name: 'Aumentar Umidade do Ar',
+                  recipe: 'Água + borrifador',
+                  steps: 'Borrife LEVEMENTE ao redor (não nas folhas). Coloque prato com água perto. Ácaros odeiam umidade.',
+                  frequency: 'Diariamente'
+                },
+                {
+                  name: 'Limpeza com Água',
+                  recipe: 'Água + pano macio',
+                  steps: 'Limpe cada folha delicadamente com pano úmido. Remove ácaros e ovos.',
+                  frequency: 'A cada 3 dias por 2 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Acaricida Específico',
+                  price: 'R$ 25-40',
+                  usage: 'Use dose reduzida para suculentas. Aplique à noite.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          lesmas_caracois: {
+            name: 'Lesmas e Caracóis',
+            severity: 'medium',
+            cause: 'Moluscos que comem folhas carnudas à noite',
+            symptoms: ['Buracos irregulares nas folhas', 'Trilhas de baba prateada', 'Folhas comidas', 'Presença de lesmas/caracóis'],
+            treatments: {
+              free: [
+                {
+                  name: 'Catação Noturna',
+                  recipe: 'Lanterna + luvas',
+                  steps: 'Saia à noite com lanterna e remova manualmente. Eles são mais ativos após o pôr do sol.',
+                  frequency: 'Todas as noites por 1 semana'
+                },
+                {
+                  name: 'Barreira de Casca de Ovo',
+                  recipe: 'Cascas de ovo trituradas',
+                  steps: 'Espalhe cascas trituradas ao redor da planta. As bordas afiadas impedem lesmas de passar.',
+                  frequency: 'Reponha após chuva'
+                },
+                {
+                  name: 'Armadilha de Cerveja',
+                  recipe: 'Pote raso + cerveja',
+                  steps: 'Enterre pote até a borda, encha com cerveja. Lesmas são atraídas e se afogam.',
+                  frequency: 'Trocar a cada 2 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Iscas para Lesmas',
+                  price: 'R$ 12-20',
+                  usage: 'Coloque ao redor das plantas. CUIDADO com pets!',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          }
+        }
+      },
+      frutifera: {
+        folhas: {
+          amarelas_nervuras_verdes: {
+            name: 'Clorose Férrica (Falta de Ferro)',
+            severity: 'medium',
+            cause: 'Deficiência de ferro, comum em solos alcalinos',
+            symptoms: ['Folhas amarelas com nervuras verdes', 'Folhas novas mais afetadas', 'Crescimento lento'],
+            treatments: {
+              free: [
+                {
+                  name: 'Pregos Enferrujados',
+                  recipe: '5-10 pregos velhos enferrujados',
+                  steps: 'Enterre os pregos ao redor da planta (10cm de profundidade). O ferro vai sendo liberado lentamente. Ou faça "chá": deixe pregos em 1L de água por 1 semana, depois regue.',
+                  frequency: 'A cada 2 meses'
+                },
+                {
+                  name: 'Vinagre Diluído',
+                  recipe: '1 colher de sopa de vinagre branco + 1 litro de água',
+                  steps: 'Acidifica o solo, ajudando a planta absorver ferro. Regue com essa mistura.',
+                  frequency: 'A cada 15 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Sulfato Ferroso',
+                  price: 'R$ 8-15',
+                  usage: 'Fonte direta de ferro. Dilua conforme instruções e aplique no solo.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          manchas_marrons: {
+            name: 'Queima de Sol',
+            severity: 'low',
+            cause: 'Exposição súbita a sol muito forte',
+            symptoms: ['Manchas marrons secas', 'Bordas queimadas', 'Folhas crocantes'],
+            treatments: {
+              free: [
+                {
+                  name: 'Sombreamento Parcial',
+                  recipe: 'Tela de sombreamento ou lençol',
+                  steps: 'Proteja do sol das 11h às 15h (horário mais forte). Acostume gradualmente ao sol pleno.',
+                  frequency: 'Até a planta se adaptar (2-3 semanas)'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Tela de Sombreamento 50%',
+                  price: 'R$ 15-30',
+                  usage: 'Instale sobre a planta para filtrar 50% da luz solar.',
+                  where: 'Lojas de jardinagem ou construção'
+                }
+              ]
+            }
+          },
+          pulgoes_frutifera: {
+            name: 'Pulgões em Frutíferas',
+            severity: 'high',
+            cause: 'Pulgões sugam seiva e transmitem viroses',
+            symptoms: ['Insetos verdes/pretos em brotos', 'Folhas enroladas', 'Formigas subindo no tronco', 'Melado nas folhas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Jato de Água Forte',
+                  recipe: 'Mangueira com jato forte',
+                  steps: 'Jato forte de água pela manhã. Foque nos brotos e embaixo das folhas. Repita diariamente.',
+                  frequency: 'Diariamente por 1 semana'
+                },
+                {
+                  name: 'Calda de Sabão e Alho',
+                  recipe: '5 dentes de alho + 1 colher de sabão + 1L água',
+                  steps: 'Bata alho com água, deixe 24h, coe, adicione sabão. Borrife generosamente.',
+                  frequency: 'A cada 3 dias por 2 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Dilua 5ml em 1L água. Borrife à noite. Seguro para frutíferas.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          },
+          cochonilhas_frutifera: {
+            name: 'Cochonilhas em Frutíferas',
+            severity: 'high',
+            cause: 'Insetos que formam colônias e sugam seiva',
+            symptoms: ['Insetos brancos/marrons grudados', 'Fumagina (fungo preto)', 'Galhos fracos', 'Frutos deformados'],
+            treatments: {
+              free: [
+                {
+                  name: 'Escova + Sabão',
+                  recipe: 'Escova macia + água com sabão',
+                  steps: 'Escove CADA galho infectado com água e sabão. Remove cochonilhas mecanicamente. Use luvas.',
+                  frequency: 'Semanalmente por 1 mês'
+                },
+                {
+                  name: 'Óleo Vegetal + Detergente',
+                  recipe: '2 colheres de óleo vegetal + 1 colher de detergente + 1L água',
+                  steps: 'Misture bem e borrife. O óleo sufoca as cochonilhas. Aplique à tarde.',
+                  frequency: 'A cada 5 dias por 3 semanas'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Inseticida Sistêmico',
+                  price: 'R$ 20-35',
+                  usage: 'Aplicar no solo. A planta absorve e mata cochonilhas de dentro.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          mosca_frutas: {
+            name: 'Mosca das Frutas',
+            severity: 'high',
+            cause: 'Moscas depositam ovos nos frutos, larvas comem por dentro',
+            symptoms: ['Furos pequenos nos frutos', 'Frutos apodrecendo prematuramente', 'Larvas brancas dentro', 'Moscas ao redor'],
+            treatments: {
+              free: [
+                {
+                  name: 'Ensacamento de Frutos',
+                  recipe: 'Sacos de papel ou TNT',
+                  steps: 'Ensaque CADA fruto quando pequeno (tamanho de azeitona). Amarre bem. Moscas não conseguem pousar.',
+                  frequency: 'Manter até colheita'
+                },
+                {
+                  name: 'Armadilha com Vinagre',
+                  recipe: 'Garrafa PET + vinagre de maçã + açúcar',
+                  steps: 'Corte garrafa, coloque vinagre + açúcar. Moscas entram e não saem. Pendure na árvore.',
+                  frequency: 'Trocar semanalmente'
+                },
+                {
+                  name: 'Coleta de Frutos Caídos',
+                  recipe: 'Sem ingredientes',
+                  steps: 'Recolha TODOS os frutos caídos DIARIAMENTE. Enterre longe ou descarte no lixo. Quebra o ciclo.',
+                  frequency: 'Diariamente'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Armadilha McPhail',
+                  price: 'R$ 25-45',
+                  usage: 'Armadilha profissional com atrativo. Muito eficaz.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          acaros_frutifera: {
+            name: 'Ácaros em Frutíferas',
+            severity: 'medium',
+            cause: 'Ácaros microscópicos que causam bronzeamento',
+            symptoms: ['Folhas bronzeadas', 'Folhas secas', 'Teias finas', 'Queda prematura de folhas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Aumentar Umidade',
+                  recipe: 'Água + mangueira',
+                  steps: 'Molhe a copa da árvore 2x ao dia (manhã e tarde). Ácaros odeiam umidade.',
+                  frequency: '2x ao dia por 2 semanas'
+                },
+                {
+                  name: 'Enxofre Molhável Caseiro',
+                  recipe: 'Enxofre em pó (farmácia) + água',
+                  steps: 'Misture 1 colher de enxofre em 1L água. Borrife nas folhas. CUIDADO: não use em dias quentes (acima 30°C).',
+                  frequency: 'A cada 7 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Acaricida Específico',
+                  price: 'R$ 25-40',
+                  usage: 'Inseticidas comuns não funcionam. Use acaricida específico.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          lagartas_frutifera: {
+            name: 'Lagartas em Frutíferas',
+            severity: 'high',
+            cause: 'Larvas que comem folhas e frutos',
+            symptoms: ['Folhas comidas', 'Buracos nos frutos', 'Fezes escuras', 'Presença de lagartas'],
+            treatments: {
+              free: [
+                {
+                  name: 'Catação Manual',
+                  recipe: 'Luvas',
+                  steps: 'Procure lagartas de manhã cedo. Remova e descarte. Verifique embaixo das folhas e dentro dos frutos.',
+                  frequency: 'Diariamente por 2 semanas'
+                },
+                {
+                  name: 'Chá de Folhas de Tomate',
+                  recipe: '2 xícaras de folhas de tomate + 2 xícaras de água',
+                  steps: 'Ferva as folhas, deixe esfriar, coe e borrife. Tóxico para lagartas, seguro para humanos.',
+                  frequency: 'A cada 5 dias'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Bacillus thuringiensis (Bt)',
+                  price: 'R$ 15-25',
+                  usage: 'Inseticida biológico. Mata só lagartas. Seguro para abelhas e humanos.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          formigas_cortadeiras: {
+            name: 'Formigas Cortadeiras (Saúvas)',
+            severity: 'high',
+            cause: 'Formigas que cortam folhas para cultivar fungo',
+            symptoms: ['Folhas cortadas em círculos', 'Trilhas de formigas', 'Desfolhamento rápido', 'Olheiros (entradas do formigueiro)'],
+            treatments: {
+              free: [
+                {
+                  name: 'Água Fervente nos Olheiros',
+                  recipe: 'Água fervente',
+                  steps: 'Despeje água fervente diretamente nos olheiros. Faça à noite quando todas estão dentro. CUIDADO para não se queimar.',
+                  frequency: 'Repetir se necessário'
+                },
+                {
+                  name: 'Barreira de Vaselina',
+                  recipe: 'Vaselina ou graxa',
+                  steps: 'Passe vaselina ao redor do tronco (faixa de 10cm). Formigas não conseguem passar.',
+                  frequency: 'Reponha mensalmente'
+                },
+                {
+                  name: 'Folhas de Gergelim',
+                  recipe: 'Folhas de gergelim',
+                  steps: 'Plante gergelim ao redor. Formigas levam as folhas mas o fungo morre. Elas abandonam o local.',
+                  frequency: 'Permanente'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Isca Formicida Granulada',
+                  price: 'R$ 15-30',
+                  usage: 'Espalhe ao redor dos olheiros. Formigas levam para dentro e mata a colônia.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          },
+          tripes_frutifera: {
+            name: 'Tripes em Frutíferas',
+            severity: 'medium',
+            cause: 'Insetos minúsculos que danificam flores e frutos',
+            symptoms: ['Flores deformadas', 'Frutos com cicatrizes', 'Manchas prateadas', 'Frutos rachados'],
+            treatments: {
+              free: [
+                {
+                  name: 'Armadilha Adesiva Azul',
+                  recipe: 'Papel azul + óleo/mel',
+                  steps: 'Pendure papéis azuis com óleo na árvore. Tripes são atraídos e grudam.',
+                  frequency: 'Trocar a cada 3 dias'
+                },
+                {
+                  name: 'Sabão de Potássio',
+                  recipe: '2 colheres de sabão neutro + 1L água',
+                  steps: 'Borrife nas flores e frutos jovens. Mata tripes por contato.',
+                  frequency: 'A cada 3 dias durante floração'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Óleo de Neem',
+                  price: 'R$ 18-30',
+                  usage: 'Muito eficaz contra tripes. Aplicar à noite durante floração.',
+                  where: 'Lojas de jardinagem'
+                }
+              ]
+            }
+          }
+        },
+        flores: {
+          caindo: {
+            name: 'Queda de Flores/Frutos',
+            severity: 'medium',
+            cause: 'Estresse hídrico, falta de polinização ou deficiência nutricional',
+            symptoms: ['Flores caem antes de formar frutos', 'Frutos pequenos caem', 'Poucas flores'],
+            treatments: {
+              free: [
+                {
+                  name: 'Rega Consistente',
+                  recipe: 'Água',
+                  steps: 'Mantenha solo uniformemente úmido durante floração e frutificação. Não deixe secar completamente nem encharcar.',
+                  frequency: '2-3x por semana'
+                },
+                {
+                  name: 'Polinização Manual',
+                  recipe: 'Pincel pequeno',
+                  steps: 'Use pincel macio para transferir pólen entre flores. Faça pela manhã quando flores estão abertas.',
+                  frequency: 'Diariamente durante floração'
+                },
+                {
+                  name: 'Casca de Ovo (Cálcio)',
+                  recipe: 'Cascas de 5-6 ovos',
+                  steps: 'Lave e seque as cascas. Triture até virar pó. Misture no solo ao redor da planta. Cálcio previne queda de frutos.',
+                  frequency: 'A cada mês'
+                }
+              ],
+              cheap: [
+                {
+                  name: 'Adubo para Frutíferas',
+                  price: 'R$ 12-25',
+                  usage: 'Rico em potássio e fósforo. Aplique conforme instruções durante floração.',
+                  where: 'Lojas agropecuárias'
+                }
+              ]
+            }
+          }
+        }
+      }
+    };
+
+    // Symptom options for each affected part
+    const symptomOptions = {
+      folhas: [
+        'Folhas amarelas começando de baixo',
+        'Manchas pretas circulares',
+        'Pequenos insetos verdes/pretos',
+        'Pó branco nas folhas',
+        'Folhas enroladas',
+        'Folhas caindo facilmente',
+        'Folhas murchas/enrugadas',
+        'Folhas transparentes',
+        'Caule alongado e fino',
+        'Folhas amarelas com nervuras verdes',
+        'Manchas marrons secas',
+        'Bordas queimadas'
+      ],
+      caule: [
+        'Caule mole ao toque',
+        'Manchas escuras',
+        'Mau cheiro',
+        'Caule fino e fraco',
+        'Crescimento lento'
+      ],
+      flores: [
+        'Botões não abrem',
+        'Botões secam antes de abrir',
+        'Flores caem rapidamente',
+        'Poucas flores',
+        'Flores deformadas'
+      ],
+      raiz: [
+        'Raízes marrons/pretas',
+        'Raízes moles',
+        'Mau cheiro no solo',
+        'Solo sempre úmido',
+        'Planta solta no vaso'
+      ]
+    };
+
+    // Element SDK Integration
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          document.getElementById('siteTitle').textContent = config.site_title || defaultConfig.site_title;
+          renderGallery();
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["site_title", config.site_title || defaultConfig.site_title],
+          ["empty_message", config.empty_message || defaultConfig.empty_message],
+          ["add_button_text", config.add_button_text || defaultConfig.add_button_text]
+        ])
+      });
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('plantDate').value = today;
+      document.getElementById('eventDate').value = today;
+      renderGallery();
+    });
+
+    // Page Navigation
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      
+      if (pageId === 'homePage') {
+        renderGallery();
+      } else if (pageId === 'diagnosisPage') {
+        resetDiagnosis();
+      }
+    }
+
+    // Gallery Rendering
+    function renderGallery() {
+      const container = document.getElementById('galleryContainer');
+      
+      if (plants.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🌱</div>
+            <div class="empty-message">${config.empty_message || defaultConfig.empty_message}</div>
+            <button class="btn-primary" onclick="showAddPlantModal()">${config.add_button_text || defaultConfig.add_button_text}</button>
+          </div>
+        `;
+        return;
+      }
+
+      const gallery = document.createElement('div');
+      gallery.className = 'gallery';
+
+      plants.forEach(plant => {
+        const age = calculateAge(plant.plantDate);
+        const card = document.createElement('div');
+        card.className = 'plant-card';
+        card.onclick = () => showPlantDetail(plant.id);
+        
+        card.innerHTML = `
+          <img src="${plant.photo}" alt="${plant.name}">
+          <div class="plant-card-overlay">
+            <div class="plant-name">${plant.name}</div>
+            <div class="plant-age">${age}</div>
+          </div>
+        `;
+        
+        gallery.appendChild(card);
+      });
+
+      container.innerHTML = '';
+      container.appendChild(gallery);
+    }
+
+    // Calculate Plant Age
+    function calculateAge(plantDate) {
+      const start = new Date(plantDate);
+      const now = new Date();
+      const diffTime = Math.abs(now - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 30) {
+        return `${diffDays} dias`;
+      } else if (diffDays < 365) {
+        const months = Math.floor(diffDays / 30);
+        return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+      } else {
+        const years = Math.floor(diffDays / 365);
+        const months = Math.floor((diffDays % 365) / 30);
+        return `${years} ${years === 1 ? 'ano' : 'anos'}${months > 0 ? ` e ${months} ${months === 1 ? 'mês' : 'meses'}` : ''}`;
+      }
+    }
+
+    // Modal Functions
+    function showAddPlantModal() {
+      document.getElementById('addPlantModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      if (modalId === 'addPlantModal') {
+        document.getElementById('addPlantForm').reset();
+        document.getElementById('plantPhotoPreview').style.display = 'none';
+      } else if (modalId === 'addEventModal') {
+        document.getElementById('addEventForm').reset();
+        document.getElementById('eventPhotoPreview').style.display = 'none';
+      }
+    }
+
+    // Photo Preview
+    function previewPhoto(input, previewId) {
+      const preview = document.getElementById(previewId);
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Add Plant
+    function addPlant(event) {
+      event.preventDefault();
+      
+      const photoInput = document.getElementById('plantPhoto');
+      if (!photoInput.files || !photoInput.files[0]) {
+        showToast('Por favor, adicione uma foto da planta');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const plant = {
+          id: Date.now().toString(),
+          name: document.getElementById('plantName').value,
+          plantDate: document.getElementById('plantDate').value,
+          notes: document.getElementById('plantNotes').value,
+          photo: e.target.result,
+          events: []
+        };
+
+        plants.push(plant);
+        localStorage.setItem('myGardenPlants', JSON.stringify(plants));
+        
+        closeModal('addPlantModal');
+        renderGallery();
+        showToast('Planta adicionada com sucesso! 🌱');
+      };
+      reader.readAsDataURL(photoInput.files[0]);
+    }
+
+    // Show Plant Detail
+    function showPlantDetail(plantId) {
+      currentPlantId = plantId;
+      const plant = plants.find(p => p.id === plantId);
+      if (!plant) return;
+
+      const age = calculateAge(plant.plantDate);
+      const content = document.getElementById('plantDetailContent');
+
+      const sortedEvents = [...plant.events].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      content.innerHTML = `
+        <div class="plant-detail-header">
+          <img src="${plant.photo}" alt="${plant.name}">
+          <div class="plant-detail-info">
+            <div class="plant-detail-name">${plant.name}</div>
+            <div class="plant-detail-meta">
+              <span>📅 Plantada em ${new Date(plant.plantDate).toLocaleDateString('pt-BR')}</span>
+              <span>🌱 ${age}</span>
+            </div>
+          </div>
+        </div>
+
+        ${plant.notes ? `<div style="background: white; padding: 16px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          <strong style="color: #8B5CF6;">Observações:</strong>
+          <p style="margin-top: 8px; color: #666;">${plant.notes}</p>
+        </div>` : ''}
+
+        <h3 class="section-title">
+          <svg class="icon-outline" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Timeline de Eventos
+        </h3>
+
+        ${sortedEvents.length === 0 ? `
+          <div style="text-align: center; padding: 40px; color: #666;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+            <p>Nenhum evento registrado ainda</p>
+          </div>
+        ` : `
+          <div class="timeline">
+            ${sortedEvents.map(event => `
+              <div class="timeline-item">
+                <div class="timeline-date">${new Date(event.date).toLocaleDateString('pt-BR')}</div>
+                <div class="timeline-type">${getEventIcon(event.type)} ${getEventName(event.type)}</div>
+                <div class="timeline-description">${event.description}</div>
+                ${event.photo ? `<img src="${event.photo}" class="timeline-photo" alt="Foto do evento">` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `}
+      `;
+
+      showPage('plantDetailPage');
+    }
+
+    // Event Type Helpers
+    function getEventIcon(type) {
+      const icons = {
+        poda: '🌿',
+        vaso: '🪴',
+        adubo: '🌱',
+        rega: '💧',
+        problema: '⚠️',
+        foto: '📸',
+        nota: '📝'
+      };
+      return icons[type] || '📝';
+    }
+
+    function getEventName(type) {
+      const names = {
+        poda: 'Poda',
+        vaso: 'Troca de Vaso',
+        adubo: 'Adubação',
+        rega: 'Rega Especial',
+        problema: 'Problema Detectado',
+        foto: 'Foto de Desenvolvimento',
+        nota: 'Nota Geral'
+      };
+      return names[type] || 'Evento';
+    }
+
+    // Add Event
+    function showAddEventModal() {
+      if (!currentPlantId) return;
+      document.getElementById('addEventModal').classList.add('active');
+    }
+
+    function addEvent(event) {
+      event.preventDefault();
+      
+      const plant = plants.find(p => p.id === currentPlantId);
+      if (!plant) return;
+
+      const photoInput = document.getElementById('eventPhoto');
+      
+      const processEvent = (photoData) => {
+        const newEvent = {
+          id: Date.now().toString(),
+          type: document.getElementById('eventType').value,
+          date: document.getElementById('eventDate').value,
+          description: document.getElementById('eventDescription').value,
+          photo: photoData
+        };
+
+        plant.events.push(newEvent);
+        localStorage.setItem('myGardenPlants', JSON.stringify(plants));
+        
+        closeModal('addEventModal');
+        showPlantDetail(currentPlantId);
+        showToast('Evento adicionado com sucesso! ✅');
+      };
+
+      if (photoInput.files && photoInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => processEvent(e.target.result);
+        reader.readAsDataURL(photoInput.files[0]);
+      } else {
+        processEvent(null);
+      }
+    }
+
+    // Diagnosis Functions
+    function resetDiagnosis() {
+      document.getElementById('problemDescription').value = '';
+      document.getElementById('problemPhoto').value = '';
+      document.getElementById('problemPhotoPreview').style.display = 'none';
+      document.getElementById('diagnosisResult').innerHTML = '';
+    }
+
+    function analyzeFreeTextDiagnosis() {
+      const description = document.getElementById('problemDescription').value.trim();
+      
+      if (!description) {
+        showToast('Por favor, descreva o problema da sua planta');
+        return;
+      }
+
+      // Show loading state
+      const resultDiv = document.getElementById('diagnosisResult');
+      resultDiv.innerHTML = `
+        <div style="text-align: center; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+          <p style="color: #666;">Analisando sintomas...</p>
+        </div>
+      `;
+
+      // Simulate AI processing
+      setTimeout(() => {
+        const diagnosis = matchDescriptionToProblem(description);
+        displayDiagnosisResult(diagnosis);
+      }, 1500);
+    }
+
+    function matchDescriptionToProblem(description) {
+      const descLower = description.toLowerCase();
+      
+      // Detect plant type from description
+      let plantType = null;
+      if (descLower.includes('rosa do deserto') || descLower.includes('adenium')) {
+        plantType = 'rosa_deserto';
+      } else if (descLower.includes('rosa')) {
+        plantType = 'rosa';
+      } else if (descLower.includes('suculenta') || descLower.includes('cacto')) {
+        plantType = 'suculenta';
+      } else if (descLower.includes('frutifera') || descLower.includes('frutífera') || descLower.includes('fruto') || descLower.includes('laranja') || descLower.includes('limão') || descLower.includes('manga') || descLower.includes('goiaba')) {
+        plantType = 'frutifera';
+      }
+      
+      // Keywords for matching
+      const keywords = {
+        excesso_agua: ['amarela', 'amarelada', 'caindo', 'úmido', 'encharcado', 'molhado', 'apodrecendo', 'mole'],
+        mancha_preta: ['mancha preta', 'manchas pretas', 'ponto preto', 'pontos pretos', 'fungo'],
+        pulgao: ['pulgão', 'pulgao', 'inseto verde', 'inseto preto', 'formiga', 'pegajoso', 'melado'],
+        cochonilha: ['cochonilha', 'algodão', 'branco grudado', 'inseto branco'],
+        acaro: ['pontos amarelos', 'teia', 'seca', 'prateada', 'bronzeada'],
+        lagarta: ['buraco', 'comida', 'lagarta', 'folha comida'],
+        oideo: ['pó branco', 'mofo branco', 'branco nas folhas'],
+        mosca_branca: ['mosca branca', 'mosquinha branca', 'nuvem de insetos'],
+        falta_luz: ['alongada', 'esticada', 'fina', 'fraca', 'crescendo torto'],
+        falta_agua: ['murcha', 'enrugada', 'seca'],
+        queima_sol: ['queimada', 'marrom seca', 'crocante'],
+        clorose: ['amarela com nervura verde', 'nervura verde'],
+        podridao: ['caule mole', 'mau cheiro', 'podre'],
+        mosca_fruta: ['fruto furado', 'larva no fruto', 'fruto apodrecendo'],
+        formiga: ['formiga cortadeira', 'saúva', 'folha cortada em círculo'],
+        tripes: ['flor deformada', 'mancha prateada', 'ponto preto pequeno'],
+        lesma: ['buraco irregular', 'baba', 'lesma', 'caracol']
+      };
+
+      let bestMatch = null;
+      let maxScore = 0;
+
+      // Search through all plant types if not specified
+      const plantsToSearch = plantType ? [plantType] : ['rosa', 'rosa_deserto', 'suculenta', 'frutifera'];
+
+      for (const plant of plantsToSearch) {
+        const plantData = knowledgeBase[plant];
+        if (!plantData) continue;
+
+        for (const part of Object.keys(plantData)) {
+          for (const [key, problem] of Object.entries(plantData[part])) {
+            let score = 0;
+
+            // Check problem symptoms
+            problem.symptoms.forEach(symptom => {
+              if (descLower.includes(symptom.toLowerCase())) {
+                score += 3;
+              }
+            });
+
+            // Check keywords
+            for (const [keywordType, words] of Object.entries(keywords)) {
+              words.forEach(word => {
+                if (descLower.includes(word)) {
+                  score += 2;
+                }
+              });
+            }
+
+            // Check problem name and cause
+            if (descLower.includes(problem.name.toLowerCase())) {
+              score += 5;
+            }
+            if (descLower.includes(problem.cause.toLowerCase())) {
+              score += 3;
+            }
+
+            if (score > maxScore) {
+              maxScore = score;
+              bestMatch = problem;
+            }
+          }
+        }
+      }
+
+      // If no good match, return a generic response
+      if (!bestMatch || maxScore < 2) {
+        return {
+          name: 'Problema Não Identificado',
+          severity: 'medium',
+          cause: 'Não foi possível identificar o problema específico com base na descrição fornecida.',
+          symptoms: ['Sintomas variados'],
+          treatments: {
+            free: [
+              {
+                name: 'Observação Detalhada',
+                recipe: 'Sem ingredientes',
+                steps: 'Observe sua planta diariamente. Anote: cor das folhas, textura do caule, frequência de rega, quantidade de luz solar, presença de insetos. Com mais detalhes, podemos fazer um diagnóstico melhor.',
+                frequency: 'Diariamente'
+              },
+              {
+                name: 'Cuidados Básicos',
+                recipe: 'Água + luz adequada',
+                steps: 'Verifique se a planta está recebendo luz adequada (4-6h de sol para maioria). Regue apenas quando o solo estiver seco ao toque. Remova folhas mortas.',
+                frequency: 'Conforme necessário'
+              }
+            ],
+            cheap: [
+              {
+                name: 'Consulta em Loja Especializada',
+                price: 'Gratuito',
+                usage: 'Tire uma foto clara do problema e leve a uma loja de jardinagem. Eles podem ajudar com diagnóstico presencial.',
+                where: 'Lojas de jardinagem locais'
+              }
+            ]
+          }
+        };
+      }
+
+      return bestMatch;
+    }
+
+    function displayDiagnosisResult(diagnosis) {
+      const resultDiv = document.getElementById('diagnosisResult');
+      
+      resultDiv.innerHTML = `
+        <div class="diagnosis-result">
+          <h3 style="font-size: 24px; color: #333; margin-bottom: 12px;">${diagnosis.name}</h3>
+          <span class="severity-badge severity-${diagnosis.severity}">
+            ${diagnosis.severity === 'low' ? 'Gravidade Baixa' : diagnosis.severity === 'medium' ? 'Gravidade Média' : 'Gravidade Alta'}
+          </span>
+
+          <div style="margin-top: 20px;">
+            <p style="margin-bottom: 12px;"><strong>Causa:</strong> ${diagnosis.cause}</p>
+            <p><strong>Sintomas Comuns:</strong></p>
+            <ul style="margin-left: 20px; margin-top: 8px; color: #666;">
+              ${diagnosis.symptoms.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="treatment-section">
+            <div class="treatment-title">
+              <svg class="icon-outline" viewBox="0 0 24 24">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              Tratamentos Caseiros (Gratuitos)
+            </div>
+            ${diagnosis.treatments.free.map(t => `
+              <div class="treatment-card">
+                <div class="treatment-name">${t.name}</div>
+                <p style="font-size: 13px; color: #8B5CF6; margin-bottom: 8px;"><strong>Receita:</strong> ${t.recipe}</p>
+                <div class="treatment-steps">${t.steps}</div>
+                <p style="font-size: 12px; color: #059669; margin-top: 8px;"><strong>Frequência:</strong> ${t.frequency}</p>
+              </div>
+            `).join('')}
+          </div>
+
+          ${diagnosis.treatments.cheap.length > 0 ? `
+            <div class="treatment-section">
+              <div class="treatment-title">
+                <svg class="icon-outline" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Tratamentos Baratos
+              </div>
+              ${diagnosis.treatments.cheap.map(t => `
+                <div class="treatment-card">
+                  <div class="treatment-name">${t.name}</div>
+                  <div class="treatment-price">${t.price}</div>
+                  <div class="treatment-steps" style="margin-top: 8px;">${t.usage}</div>
+                  <p style="font-size: 12px; color: #666; margin-top: 8px;"><strong>Onde comprar:</strong> ${t.where}</p>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div class="action-buttons">
+            <button class="btn-secondary" onclick="resetDiagnosis()">
+              Novo Diagnóstico
+            </button>
+            <button class="btn-primary" style="flex: 1;" onclick="saveDiagnosisToPlant('${diagnosis.name}')">
+              Salvar na Planta
+            </button>
+          </div>
+        </div>
+      `;
+
+      resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function saveDiagnosisToPlant(problemName) {
+      if (plants.length === 0) {
+        showToast('Adicione uma planta primeiro!');
+        return;
+      }
+
+      // Create inline selection UI
+      const resultDiv = document.getElementById('diagnosisResult');
+      const selectUI = document.createElement('div');
+      selectUI.style.cssText = 'background: #f9fafb; padding: 20px; border-radius: 16px; margin-top: 20px;';
+      selectUI.innerHTML = `
+        <h4 style="margin-bottom: 16px; color: #333;">Selecione a planta:</h4>
+        ${plants.map((p, i) => `
+          <div class="option-card" style="margin-bottom: 8px; text-align: left;" onclick="confirmSaveDiagnosis(${i}, '${problemName}')">
+            <strong>${p.name}</strong>
+          </div>
+        `).join('')}
+        <button class="btn-secondary" style="width: 100%; margin-top: 12px;" onclick="this.parentElement.remove()">Cancelar</button>
+      `;
+      
+      resultDiv.appendChild(selectUI);
+    }
+
+    function confirmSaveDiagnosis(plantIndex, problemName) {
+      const plant = plants[plantIndex];
+      const event = {
+        id: Date.now().toString(),
+        type: 'problema',
+        date: new Date().toISOString().split('T')[0],
+        description: `Diagnóstico: ${problemName}`,
+        photo: null
+      };
+      
+      plant.events.push(event);
+      localStorage.setItem('myGardenPlants', JSON.stringify(plants));
+      showToast('Diagnóstico salvo com sucesso! ✅');
+      
+      // Remove selection UI
+      document.querySelectorAll('#diagnosisResult > div').forEach((div, i) => {
+        if (i > 0) div.remove();
+      });
+    }
+
+    function showInfoModal() {
+      const infoHTML = `
+        <div style="background: white; border-radius: 24px; padding: 24px; max-width: 400px; margin: 20px;">
+          <h3 style="color: #8B5CF6; margin-bottom: 16px;">Sobre o My Garden</h3>
+          <p style="color: #666; line-height: 1.6; margin-bottom: 16px;">
+            Sistema inteligente de diagnóstico com base de conhecimento especializada em:
+          </p>
+          <ul style="color: #666; margin-left: 20px; margin-bottom: 16px;">
+            <li>🌹 Rosas</li>
+            <li>🌺 Rosas do Deserto</li>
+            <li>🌵 Suculentas</li>
+            <li>🍊 Plantas Frutíferas</li>
+          </ul>
+          <p style="color: #666; line-height: 1.6;">
+            Todos os dados são salvos localmente no seu navegador.
+          </p>
+          <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="this.closest('div').remove()">Fechar</button>
+        </div>
+      `;
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 3000;';
+      modal.innerHTML = infoHTML;
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+      document.body.appendChild(modal);
+    }
+
+    // Toast Notification
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(90deg, #8B5CF6 0%, #FCD34D 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 24px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        z-index: 9999;
+        font-weight: 600;
+        max-width: 90%;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.transition = 'opacity 0.3s';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a032e04f523f16b',t:'MTc2MzQyMzk0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
